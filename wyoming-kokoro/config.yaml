@@ -1,0 +1,17 @@
+name: "Wyoming Kokoro TTS"
+description: "Local Kokoro TTS with full voice support via Wyoming protocol"
+version: "1.0.0"
+slug: "wyoming_kokoro"
+init: false
+arch:
+  - amd64
+ports:
+  10200/tcp: 10200
+ports_description:
+  10200/tcp: "Wyoming Protocol"
+options:
+  voice: "bm_george"
+  speed: 0.9
+schema:
+  voice: str
+  speed: float

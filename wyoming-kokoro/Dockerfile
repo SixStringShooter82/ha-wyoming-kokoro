@@ -1,20 +1,15 @@
-ARG BUILD_FROM
-FROM ${BUILD_FROM}
+FROM python:3.11-slim
 
 # Install system dependencies
-RUN apk add --no-cache \
-    python3 \
-    py3-pip \
+RUN apt-get update && apt-get install -y \
     espeak-ng \
     git \
     gcc \
-    musl-dev \
-    python3-dev \
-    libffi-dev \
-    wget
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-RUN pip3 install --no-cache-dir --break-system-packages \
+RUN pip install --no-cache-dir \
     kokoro-onnx \
     wyoming \
     soundfile \
@@ -28,7 +23,6 @@ RUN mkdir -p /kokoro && \
     wget -q -O /kokoro/voices.bin \
     https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files/voices.bin
 
-# Copy server
 COPY server.py /app/server.py
 COPY run.sh /run.sh
 RUN chmod +x /run.sh

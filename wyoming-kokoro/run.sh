@@ -1,23 +1,21 @@
-#!/usr/bin/with-contenv bashio
-
-bashio::log.info "Starting Wyoming Kokoro TTS v2.0..."
+#!/bin/bash
 
 MODEL_DIR="/data/kokoro-models"
 mkdir -p "${MODEL_DIR}"
 
 if [ ! -f "${MODEL_DIR}/kokoro-v1.0.onnx" ]; then
-    bashio::log.info "Downloading Kokoro model (one time only)..."
+    echo "Downloading Kokoro model (one time only)..."
     curl -L -o "${MODEL_DIR}/kokoro-v1.0.onnx" \
         "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx"
 fi
 
 if [ ! -f "${MODEL_DIR}/voices.bin" ]; then
-    bashio::log.info "Downloading voices file (one time only)..."
+    echo "Downloading voices file (one time only)..."
     curl -L -o "${MODEL_DIR}/voices.bin" \
         "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices.bin"
 fi
 
-bashio::log.info "Model ready. Starting server..."
+echo "Model ready. Starting Wyoming Kokoro TTS v2.0..."
 
 exec python3 /app/server.py \
     --uri tcp://0.0.0.0:10200 \

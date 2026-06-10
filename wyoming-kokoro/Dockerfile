@@ -1,4 +1,4 @@
-FROM ghcr.io/home-assistant/amd64-base-python:3.12
+FROM python:3.11-slim
 
 RUN apt-get update && apt-get install -y \
     espeak-ng \
@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --no-cache-dir --break-system-packages \
+RUN pip3 install --no-cache-dir \
     kokoro-onnx \
     wyoming \
     soundfile \

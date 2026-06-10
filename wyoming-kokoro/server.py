@@ -181,6 +181,7 @@ async def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--uri", default="tcp://0.0.0.0:10200")
     parser.add_argument("--config", default="/data/options.json")
+    parser.add_argument("--model-dir", default="/data/kokoro-models")
     args = parser.parse_args()
 
     with open(args.config) as f:
@@ -188,7 +189,8 @@ async def main():
 
     characters = options.get('characters', [])
     _LOGGER.info("Loading Kokoro model...")
-    kokoro = Kokoro("kokoro-v1.0.onnx", "voices.bin")
+    model_dir = args.model_dir if hasattr(args, 'model_dir') else "/data/kokoro-models"
+kokoro = Kokoro(f"{model_dir}/kokoro-v1.0.onnx", f"{model_dir}/voices.bin")
     _LOGGER.info(f"Kokoro loaded with {len(characters)} character(s)")
 
     server = AsyncServer.from_uri(args.uri)

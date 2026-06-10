@@ -1,6 +1,6 @@
 name: "Wyoming Kokoro TTS"
-description: "Local Kokoro TTS with full voice support via Wyoming protocol"
-version: "1.0.0"
+description: "Multi-character local Kokoro TTS with voice blending, emotions, and audio effects"
+version: "2.0.0"
 slug: "wyoming_kokoro"
 init: false
 arch:
@@ -10,8 +10,22 @@ ports:
 ports_description:
   10200/tcp: "Wyoming Protocol"
 options:
-  voice: "bm_george"
-  speed: 0.9
+  characters:
+    - name: "George"
+      voice: "bm_george"
+      blend_voice: ""
+      blend_ratio: 0.0
+      speed: 0.9
+      pitch: -1
+      effect: "none"
+      default_emotion: "calm"
 schema:
-  voice: str
-  speed: float
+  characters:
+    - name: str
+      voice: str
+      blend_voice: str
+      blend_ratio: float
+      speed: float
+      pitch: int
+      effect: str
+      default_emotion: str

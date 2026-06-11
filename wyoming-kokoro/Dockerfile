@@ -1,4 +1,5 @@
-FROM python:3.11-slim
+ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base-python:3.12.9
+FROM ${BUILD_FROM}
 
 RUN apt-get update && apt-get install -y \
     espeak-ng \
@@ -8,16 +9,15 @@ RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --no-cache-dir \
+RUN pip3 install --no-cache-dir --break-system-packages \
     kokoro-onnx \
     wyoming \
     soundfile \
     numpy \
     scipy
 
-# Fix numpy pickle compatibility with voices.bin
 RUN sed -i 's/np\.load(voices_path)/np.load(voices_path, allow_pickle=True)/g' \
-    /usr/local/lib/python3.11/site-packages/kokoro_onnx/__init__.py
+    /usr/local/lib/python3.12/site-packages/kokoro_onnx/__init__.py
 
 COPY server.py /app/server.py
 COPY run.sh /run.sh

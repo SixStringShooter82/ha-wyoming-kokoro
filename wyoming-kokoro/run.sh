@@ -9,10 +9,10 @@ if [ ! -f "${MODEL_DIR}/kokoro-v1.0.onnx" ]; then
         "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx"
 fi
 
-if [ ! -f "${MODEL_DIR}/voices.bin" ] || [ $(wc -c < "${MODEL_DIR}/voices.bin") -lt 1000 ]; then
+if [ ! -f "${MODEL_DIR}/voices-v1.0.bin" ] || [ $(wc -c < "${MODEL_DIR}/voices-v1.0.bin") -lt 1000 ]; then
     echo "Downloading voices file (one time only)..."
-    curl -L -o "${MODEL_DIR}/voices.bin" \
-        "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/voices.bin"
+    curl -L -o "${MODEL_DIR}/voices-v1.0.bin" \
+        "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin"
 fi
 
 echo "Model ready. Starting Wyoming Kokoro TTS v2.0..."

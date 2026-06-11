@@ -6,37 +6,20 @@ Multi-character emotional TTS with voice blending, pitch control, and audio effe
 import argparse
 import asyncio
 import logging
-import numpy as np
 import json
 import re
+import numpy as np
 from typing import Optional
 
 from wyoming.audio import AudioChunk, AudioStart, AudioStop
 from wyoming.event import Event
-from wyoming.info import Attribution, Info, TtsProgram, TtsVoice
 from wyoming.server import AsyncEventHandler, AsyncServer
 from wyoming.tts import Synthesize
-
-import numpy as np_patch
-_original_load = np_patch.load
-def _patched_load(*args, **kwargs):
-    kwargs.setdefault('allow_pickle', True)
-    return _original_load(*args, **kwargs)
-np_patch.load = _patched_load
 
 from kokoro_onnx import Kokoro
 
 logging.basicConfig(level=logging.INFO)
 _LOGGER = logging.getLogger(__name__)
-
-ALL_VOICES = [
-    "af_alloy", "af_aoede", "af_bella", "af_heart", "af_jessica",
-    "af_kore", "af_nicole", "af_nova", "af_river", "af_sarah", "af_sky",
-    "am_adam", "am_echo", "am_eric", "am_fenrir", "am_liam",
-    "am_michael", "am_onyx", "am_puck", "am_santa",
-    "bf_alice", "bf_emma", "bf_isabella", "bf_lily",
-    "bm_daniel", "bm_fable", "bm_george", "bm_lewis"
-]
 
 EMOTION_PRESETS = {
     "neutral":  (1.0,  0,  "none"),
@@ -59,7 +42,7 @@ def apply_pitch_shift(audio: np.ndarray, sample_rate: int, semitones: float) -> 
         factor = 2 ** (semitones / 12.0)
         new_length = int(len(audio) / factor)
         shifted = scipy.signal.resample(audio, new_length)
-        return scipy.signal.resample(shifted, len(audio))
+        return scipy.signal.resample(shifted, len(audio)).astype(np.float32)
     except Exception as e:
         _LOGGER.warning(f"Pitch shift failed: {e}")
         return audio
@@ -148,7 +131,7 @@ class KokoroEventHandler(AsyncEventHandler):
 
         voice1 = character['voice']
         voice2 = character.get('blend_voice', '')
-        ratio = character.get('blend_ratio', 0.0)
+        ratio = float(character.get('blend_ratio', 0.0))
 
         v1 = self.kokoro.get_voice(voice1)
         if voice2 and ratio > 0:
@@ -161,10 +144,16 @@ class KokoroEventHandler(AsyncEventHandler):
 
         _LOGGER.info(f"Synthesizing: char={character['name']} emotion={emotion_name} speed={speed:.2f} pitch={pitch} effect={effect}")
 
-        samples, sample_rate = self.kokoro.create(text, voice=voice_tensor, speed=speed, lang=lang)
+        samples, sample_rate = self.kokoro.create(
+            text,
+            voice=voice_tensor,
+            speed=speed,
+            lang=lang
+        )
 
         if pitch != 0:
             samples = apply_pitch_shift(samples, sample_rate, pitch)
+
         if effect and effect != 'none':
             samples = apply_effect(samples, sample_rate, effect)
 
@@ -195,12 +184,17 @@ async def main():
         options = json.load(f)
 
     characters = options.get('characters', [])
+    model_dir = args.model_dir
+
     _LOGGER.info("Loading Kokoro model...")
-    model_dir = args.model_dir if hasattr(args, 'model_dir') else "/data/kokoro-models"
-    kokoro = Kokoro(f"{model_dir}/kokoro-v1.0.onnx", f"{model_dir}/voices.bin")
+    kokoro = Kokoro(
+        f"{model_dir}/kokoro-v1.0.onnx",
+        f"{model_dir}/voices.bin"
+    )
     _LOGGER.info(f"Kokoro loaded with {len(characters)} character(s)")
 
     server = AsyncServer.from_uri(args.uri)
+    _LOGGER.info(f"Wyoming server starting on {args.uri}")
     await server.run(lambda *a, **kw: KokoroEventHandler(kokoro, characters, *a, **kw))
 
 

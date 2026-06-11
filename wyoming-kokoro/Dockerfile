@@ -15,6 +15,10 @@ RUN pip3 install --no-cache-dir \
     numpy \
     scipy
 
+# Fix numpy pickle compatibility with voices.bin
+RUN sed -i 's/np\.load(voices_path)/np.load(voices_path, allow_pickle=True)/g' \
+    /usr/local/lib/python3.11/site-packages/kokoro_onnx/__init__.py
+
 COPY server.py /app/server.py
 COPY run.sh /run.sh
 RUN chmod +x /run.sh

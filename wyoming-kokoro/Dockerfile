@@ -1,13 +1,14 @@
-ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base-python:3.12.9
+ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base-python:3.12-alpine3.21
 FROM ${BUILD_FROM}
 
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
     espeak-ng \
     git \
     wget \
     curl \
     gcc \
-    && rm -rf /var/lib/apt/lists/*
+    musl-dev \
+    python3-dev
 
 RUN pip3 install --no-cache-dir --break-system-packages \
     kokoro-onnx \

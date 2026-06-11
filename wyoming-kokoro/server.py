@@ -188,9 +188,9 @@ async def main():
 
     _LOGGER.info("Loading Kokoro model...")
     kokoro = Kokoro(
-        f"{model_dir}/kokoro-v1.0.onnx",
-        f"{model_dir}/voices.bin"
-    )
+    f"{model_dir}/kokoro-v1.0.onnx",
+    f"{model_dir}/voices-v1.0.bin"
+)
     _LOGGER.info(f"Kokoro loaded with {len(characters)} character(s)")
 
     server = AsyncServer.from_uri(args.uri)

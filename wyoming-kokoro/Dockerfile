@@ -19,7 +19,7 @@ RUN sed -i 's/np\.load(voices_path)/np.load(voices_path, allow_pickle=True)/g' \
 
 COPY server.py /app/server.py
 COPY run.sh /run.sh
-RUN chmod +x /run.sh
+RUN sed -i 's/\r//' /run.sh && chmod +x /run.sh
 
 WORKDIR /data
 CMD ["/run.sh"]

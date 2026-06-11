@@ -1,16 +1,13 @@
-ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base-python:3.12-alpine3.21
-FROM ${BUILD_FROM}
+FROM python:3.11-slim
 
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     espeak-ng \
     git \
-    wget \
     curl \
     gcc \
-    musl-dev \
-    python3-dev
+    && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --no-cache-dir --break-system-packages \
+RUN pip3 install --no-cache-dir \
     kokoro-onnx \
     wyoming \
     soundfile \
@@ -18,7 +15,7 @@ RUN pip3 install --no-cache-dir --break-system-packages \
     scipy
 
 RUN sed -i 's/np\.load(voices_path)/np.load(voices_path, allow_pickle=True)/g' \
-    /usr/local/lib/python3.12/site-packages/kokoro_onnx/__init__.py
+    /usr/local/lib/python3.11/site-packages/kokoro_onnx/__init__.py
 
 COPY server.py /app/server.py
 COPY run.sh /run.sh

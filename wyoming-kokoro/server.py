@@ -17,6 +17,13 @@ from wyoming.info import Attribution, Info, TtsProgram, TtsVoice
 from wyoming.server import AsyncEventHandler, AsyncServer
 from wyoming.tts import Synthesize
 
+import numpy as np_patch
+_original_load = np_patch.load
+def _patched_load(*args, **kwargs):
+    kwargs.setdefault('allow_pickle', True)
+    return _original_load(*args, **kwargs)
+np_patch.load = _patched_load
+
 from kokoro_onnx import Kokoro
 
 logging.basicConfig(level=logging.INFO)

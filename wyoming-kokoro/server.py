@@ -99,12 +99,17 @@ def process_text(text: str):
 
 
 class KokoroEventHandler(AsyncEventHandler):
-    def __init__(self, wyoming_info: Info, kokoro: Kokoro, characters: list, *args, **kwargs):
-        super().__init__(wyoming_info, *args, **kwargs)
+    def __init__(self, wyoming_info: Info, kokoro: Kokoro, characters: list, reader, writer):
+        super().__init__(reader, writer)
+        self.wyoming_info = wyoming_info
         self.kokoro = kokoro
         self.characters = {c['name']: c for c in characters}
 
     async def handle_event(self, event: Event) -> bool:
+        if Describe.is_type(event.type):
+            await self.write_event(self.wyoming_info.event())
+            return True
+
         if not Synthesize.is_type(event.type):
             return True
 
@@ -225,9 +230,8 @@ async def main():
     server = AsyncServer.from_uri(args.uri)
     _LOGGER.info(f"Wyoming server starting on {args.uri}")
     await server.run(
-        lambda *a, **kw: KokoroEventHandler(wyoming_info, kokoro, characters, *a, **kw)
+        lambda reader, writer: KokoroEventHandler(wyoming_info, kokoro, characters, reader, writer)
     )
-
 
 if __name__ == "__main__":
     asyncio.run(main())

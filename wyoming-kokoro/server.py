@@ -138,9 +138,9 @@ class KokoroEventHandler(AsyncEventHandler):
         voice2 = character.get('blend_voice', '')
         ratio = float(character.get('blend_ratio', 0.0))
 
-        v1 = self.kokoro.get_voice(voice1)
+        v1 = self.kokoro.voices[voice1]
         if voice2 and ratio > 0:
-            v2 = self.kokoro.get_voice(voice2)
+            v2 = self.kokoro.voices[voice2]
             voice_tensor = v1 * (1.0 - ratio) + v2 * ratio
         else:
             voice_tensor = v1

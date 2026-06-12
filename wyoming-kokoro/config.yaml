@@ -1,6 +1,6 @@
 name: "Wyoming Kokoro TTS"
 description: "Multi-character local Kokoro TTS with voice blending, emotions, and audio effects"
-version: "2.2.0"
+version: "2.2.1"
 slug: "wyoming_kokoro"
 init: false
 arch:

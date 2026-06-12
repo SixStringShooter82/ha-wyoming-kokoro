@@ -9,7 +9,6 @@ import logging
 import json
 import re
 import numpy as np
-from typing import Optional
 
 from wyoming.audio import AudioChunk, AudioStart, AudioStop
 from wyoming.describe import Describe
@@ -232,6 +231,7 @@ async def main():
     await server.run(
         lambda reader, writer: KokoroEventHandler(wyoming_info, kokoro, characters, reader, writer)
     )
+
 
 if __name__ == "__main__":
     asyncio.run(main())

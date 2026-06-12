@@ -1,5 +1,5 @@
 """
-Wyoming Kokoro TTS Server
+Wyoming Kokoro TTS Server - v2.1
 Multi-character emotional TTS with voice blending, pitch control, and audio effects
 """
 
@@ -13,6 +13,7 @@ from typing import Optional
 
 from wyoming.audio import AudioChunk, AudioStart, AudioStop
 from wyoming.event import Event
+from wyoming.info import Attribution, Info, TtsProgram, TtsVoice
 from wyoming.server import AsyncEventHandler, AsyncServer
 from wyoming.tts import Synthesize
 
@@ -97,8 +98,8 @@ def process_text(text: str):
 
 
 class KokoroEventHandler(AsyncEventHandler):
-    def __init__(self, kokoro: Kokoro, characters: list, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, wyoming_info: Info, kokoro: Kokoro, characters: list, *args, **kwargs):
+        super().__init__(wyoming_info, *args, **kwargs)
         self.kokoro = kokoro
         self.characters = {c['name']: c for c in characters}
 
@@ -188,14 +189,43 @@ async def main():
 
     _LOGGER.info("Loading Kokoro model...")
     kokoro = Kokoro(
-    f"{model_dir}/kokoro-v1.0.onnx",
-    f"{model_dir}/voices-v1.0.bin"
-)
+        f"{model_dir}/kokoro-v1.0.onnx",
+        f"{model_dir}/voices-v1.0.bin"
+    )
     _LOGGER.info(f"Kokoro loaded with {len(characters)} character(s)")
+
+    wyoming_info = Info(
+        tts=[TtsProgram(
+            name="kokoro",
+            description="Kokoro multi-character TTS",
+            attribution=Attribution(
+                name="kokoro-onnx",
+                url="https://github.com/thewh1teagle/kokoro-onnx"
+            ),
+            installed=True,
+            version="1.0",
+            voices=[
+                TtsVoice(
+                    name=char['name'],
+                    description=f"Character: {char['voice']}",
+                    attribution=Attribution(
+                        name="Kokoro",
+                        url="https://github.com/thewh1teagle/kokoro-onnx"
+                    ),
+                    installed=True,
+                    version="1.0",
+                    languages=["en-gb" if char['voice'].startswith('b') else "en-us"]
+                )
+                for char in characters
+            ]
+        )]
+    )
 
     server = AsyncServer.from_uri(args.uri)
     _LOGGER.info(f"Wyoming server starting on {args.uri}")
-    await server.run(lambda *a, **kw: KokoroEventHandler(kokoro, characters, *a, **kw))
+    await server.run(
+        lambda *a, **kw: KokoroEventHandler(wyoming_info, kokoro, characters, *a, **kw)
+    )
 
 
 if __name__ == "__main__":

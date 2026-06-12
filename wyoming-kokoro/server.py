@@ -11,6 +11,7 @@ import re
 import numpy as np
 from typing import Optional
 
+from wyoming.describe import Describe
 from wyoming.audio import AudioChunk, AudioStart, AudioStop
 from wyoming.event import Event
 from wyoming.info import Attribution, Info, TtsProgram, TtsVoice

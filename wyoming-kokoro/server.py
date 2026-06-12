@@ -11,7 +11,6 @@ import re
 import numpy as np
 
 from wyoming.audio import AudioChunk, AudioStart, AudioStop
-from wyoming.describe import Describe
 from wyoming.event import Event
 from wyoming.info import Attribution, Info, TtsProgram, TtsVoice
 from wyoming.server import AsyncEventHandler, AsyncServer
@@ -105,7 +104,7 @@ class KokoroEventHandler(AsyncEventHandler):
         self.characters = {c['name']: c for c in characters}
 
     async def handle_event(self, event: Event) -> bool:
-        if Describe.is_type(event.type):
+        if event.type == "describe":
             await self.write_event(self.wyoming_info.event())
             return True
 
